@@ -1,0 +1,14 @@
+<nav class='navbar navbar-light navbar-expand-sm' style='background-color: #e3f2fd;'>
+    <div class='container-fluid'>
+        {% block navItems %}
+            <a class='navbar-brand' href=''>Home</a>
+            <a class='navbar-brand' href=''>Invoices</a>
+            <a class='navbar-brand' href=''>Account</a>
+            {% if user.is_authenticated %}
+                <a class='navbar-brand' href=''>{{user.username}}</a>
+            {% else %}
+                <a class='navbar-brand' href='user/login/'>Sign In</a>    
+            {% endif %}
+        {% endblock navItems %}
+    </div>
+</nav>
