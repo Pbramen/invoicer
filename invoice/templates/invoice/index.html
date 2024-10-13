@@ -1,0 +1,17 @@
+<h1>Invoice Manager</h1>
+
+    <div id='main_content' class=''> 
+        <div class='card flex col-sm'>
+            <h2>Create New Invoice </h2>
+            <span></span>
+            <button hx-get='/invoice/create/' hx-target='#main_content' hx-swap='innerHTML' hx-push-url='/invoice/create/'>
+                Create
+            </button>
+        </div>
+        <div class='card flex col-sm'>
+            <h2>View All Invoices</h2>
+            <button>
+                View
+            </button>
+        </div>
+    </div>

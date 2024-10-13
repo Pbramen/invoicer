@@ -1,0 +1,13 @@
+{% extends "invoicer/form.html" %}
+<div class='card'>
+{% block content_title %}
+    <h1>Sign in here!</h1>
+{% endblock content_title %}
+{% block content %}
+        {% block form %}
+        {{ block.super }}
+        {% endblock  %}
+        <hr/>
+        <span>Already have an account? <a href="/user/login">Sign in here</a></span>
+    </div>
+{% endblock content %}

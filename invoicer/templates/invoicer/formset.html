@@ -1,0 +1,53 @@
+<form id='work_order_container' method='POST'>
+    {% csrf_token %}
+    {{ form.management_form }}
+
+
+    {% for order in form %}
+    <div class='work_order'>
+
+        <h2 id='work_order-0-header'>Work Order #1</h2>
+        <table>
+        {{ order.as_table }}
+        </table>
+    </div>
+    {% endfor %}
+  
+    <button type='button' id='add_work_btn'>Add</button>
+    <button type='submit'>Submit</button>
+
+</form>
+
+<script>
+    // for delete...
+    // let form_id_list = new Set([1]);
+    // let freed_id_list = new Set([]);
+
+    let addButton = document.getElementById("add_work_btn")
+    let numOfForms = {{form.total_form_count}} 
+    var totalFormEl = document.querySelector("#id_work_order-TOTAL_FORMS")
+    let formEl = document.getElementsByClassName('work_order')[0]
+    let container = document.getElementById('work_order_container')
+
+    addButton.addEventListener('click', addOrder)
+
+    function addOrder(e){
+        e.preventDefault()
+
+        let formCopyEl = formEl.cloneNode(true)
+        
+ 
+        const regex = /work_order-([0-9])+-/gm;
+        let text = formCopyEl.innerHTML
+        text = text.replace(regex, `work_order-${numOfForms}-`)
+
+        numOfForms += 1
+
+        formCopyEl.innerHTML = text;
+
+        totalFormEl.value = `${numOfForms}`
+        container.insertBefore(formCopyEl, addButton)
+        document.getElementById(`work_order-${numOfForms - 1}-header`).innerHTML = `Work Order #${numOfForms}`
+
+    }
+</script>

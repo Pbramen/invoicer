@@ -1,13 +1,15 @@
 <nav class='navbar navbar-light navbar-expand-sm' style='background-color: #e3f2fd;'>
     <div class='container-fluid'>
         {% block navItems %}
-            <a class='navbar-brand' href=''>Home</a>
-            <a class='navbar-brand' href=''>Invoices</a>
-            <a class='navbar-brand' href=''>Account</a>
+            <a tabindex='0' class='navbar-brand' hx-get='/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/'>Home</a>
+            <a tabindex='0' class='navbar-brand' hx-get='/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/'>About</a>
             {% if user.is_authenticated %}
-                <a class='navbar-brand' href=''>{{user.username}}</a>
+                <a tabindex='0' class='navbar-brand' hx-get='/invoice/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/invoice'>Invoices</a>
+                <a tabindex='0' class='navbar-brand' hx-get='/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/'>{{user.username}}</a>
+                {% comment "placeholder here" %}{% endcomment %}
+                <a tabindex='0' class='navbar-brand' hx-get='/user/logout/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/user/logout'>Logout</a>    
             {% else %}
-                <a class='navbar-brand' href='user/login/'>Sign In</a>    
+                <a tabindex='0' class='navbar-brand' hx-get='/user/login/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/user/login/'>Sign In</a>    
             {% endif %}
         {% endblock navItems %}
     </div>
