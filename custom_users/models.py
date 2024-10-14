@@ -21,7 +21,7 @@ class PhoneNumber(abstract_models.RemoveWS_Model):
     phone_number = models.CharField(max_length=12, validators=[validate_phone])
     
     def __str__(self):
-        return f"Phone Number: ({self.category}) {self.value}"
+        return f"Phone Number: ({self.category}) {self.phone_number}"
     
 
 class Email(abstract_models.RemoveWS_Model):
@@ -114,7 +114,7 @@ class Address(abstract_models.RemoveWS_Model):
     lng = models.FloatField(blank=True, null=True, default=None)
 
     def __str__(self):
-        return f"address: {self.street} {self.city}, {self.state}"
+        return f"{self.street} {self.city}, {self.state} {self.zipcode}"
 
         
 ########################################################################
@@ -132,10 +132,10 @@ class Contact(abstract_models.RemoveWS_Model):
 
 # intermmediary table for users and contact information
 class Customer(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, null=True, related_name='_contact')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user')
+    contact = models.OneToOneField(Contact, on_delete=models.CASCADE, related_name='_contact_info')
     default_alert = models.CharField(default='30d', db_comment="Time before due date when email notification is sent",max_length=24)
-    vendor_to_customer = models.ManyToManyField(Contact, through="VendorCustomer")
+    vendor_to_customer = models.ManyToManyField(Contact, through="VendorCustomer", related_name='_client_list')
 
 
 class VendorCustomer(models.Model):

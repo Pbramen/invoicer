@@ -8,23 +8,15 @@ import shortuuid
 shortuuid.set_alphabet('23456789BCDGHJKLMPQSTVY')
 
 # Create your models here.
-class WorkOrder(models.Model):
-    title = models.CharField(max_length=64)
-    descript = models.CharField(max_length=254)
-    vendor = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='_seller')
-    completion_date = models.DateField(auto_now=False, auto_now_add=False)
-    
-
 class Invoice(models.Model):
     invoice_uuid = models.CharField(max_length=16)
-    title = models.CharField(max_length=64)
-    descript = models.CharField( max_length=254)
+    invoice_title = models.CharField(max_length=64)
+    invoice_descript = models.CharField( max_length=254)
     customer = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='_recipient')
     issuer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='_issuer')
     issued_at = models.DateField()
     deadline = models.DateField()
     status = models.CharField(max_length=16)
-    work_orders = models.ManyToManyField(WorkOrder)
 
     # create a human readable invoice number 
     def generateInvoiceNumber(self, unique=False):
@@ -50,13 +42,23 @@ class Invoice(models.Model):
         return uuid if stop > 0 else None
 
 
+class WorkOrder(models.Model):
+    order_title = models.CharField(max_length=64)
+    order_descript = models.CharField(max_length=254)
+    vendor = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='_seller')
+    completion_date = models.DateField(null=True, blank=True, auto_now=False, auto_now_add=False)
+    invoice = models.ForeignKey(Invoice, null=True, blank=True, on_delete=models.CASCADE)    
+
+    def __str__(self):
+        return f'{self.order_title}'
+
 class WorkItem(models.Model):
     validate_money = RegexValidator(regex='[0-9]+\.[0-9]{2}', message='Format must be in 00.00')
     cost = models.FloatField(default=0.00, validators=[validate_money])
     quantity = models.PositiveIntegerField(default=1)
     name = models.CharField(max_length=64)
     descript = models.CharField(max_length=254)
-    job_site = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='_job_site')
+    job_site = models.ForeignKey(Address, on_delete=models.CASCADE)
     work_order = models.ForeignKey(WorkOrder, on_delete=models.CASCADE)
     
 
