@@ -1,19 +1,27 @@
 {% block form %}
-    <form class='' action='' method='POST'>
+{% load crispy_forms_tags %}
+    <form class='form-block-pb sm-pd-pb' action='' method='POST'>
         {% csrf_token %}
         <table>
             {% for f in form %}
                 {% for field in f %}
                     <div class="form_field_wrapper">
-                        {{ field.errors }}
-                        {{ field.label_tag }}
-                        {{ field }}
-                        <div class="field_help">{{ field.help_text}}</div>
+                        {{ field|as_crispy_field }}
+                        
                     </div>
-            {% endfor %}
+                {% endfor %}
+                {% if f.non_field_errors %}
+                    <ul class='alert'>
+                    {% for errors in f.non_field_errors %}
+                        <li style='list-style: none; margin: 0; padding: 0;'>
+                        {{ errors }}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
             {% endfor %}
             </table>
-            
-        <button tabindex='0' type='submit'>{{btn_display|default_if_none:'Submit'}}</button>
+           
+        <button class='btn btn-primary' tabindex='0' type='submit'>{{btn_display|default_if_none:'Submit'}}</button>
     </form>
 {% endblock form %}

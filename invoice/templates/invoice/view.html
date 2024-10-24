@@ -1,0 +1,28 @@
+{% if count == 0 %}
+    <p>No results found.</p>    
+
+{% else %}
+<div class='graytext sm-mgn-top'>Found {{ count }} total results.</div>
+<table class='table table-striped'>
+    <tr>
+        <th>Invoice #</th>
+        <th>Invoice Title</th>
+        <th>Due Date</th>
+        <th>Status</th>
+        <th>Total cost</th>
+    </tr>
+
+    </tr>
+    {% for invoice in invoice_list %}
+    
+    <tr>
+        <td><a href="/invoice/viewInvoice/?uuid={{invoice.uuid}}">{{invoice.uuid}}</a></td>
+        <td>{{invoice.order_title}}</td>
+        <td>{{invoice.deadline}} </td>
+        <td>{{invoice.status}} </td>
+        <td>{{invoice.total|floatformat:2}}</td>
+
+    {% endfor %}
+    </tr>
+</table>
+{% endif %}

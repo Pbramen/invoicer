@@ -1,0 +1,30 @@
+{% block content %}
+    {% load static crispy_forms_tags %}
+    <h1>Vendor Admin Registration</h1>
+    <form class='form-block-pb sm-pd-pb' method='POST'>
+        {% csrf_token %}
+        <section class='card sm-pd-pb sm-mg-bottom-pb'> 
+            <h2>User Information</h2>
+            {% for field in user_form %}
+                {{ field |as_crispy_field }}
+            {% endfor %}
+            {% for field in user_address %}
+                {{ field|as_crispy_field }}
+            {% endfor %}
+            {% for field in user_phone %}
+                {{ field|as_crispy_field }}
+            {% endfor %}
+        </section>
+
+        <section class='sm-mg-bottom-pb card sm-pd-pb'>
+            <h2>Vendor / Company</h2>
+                {% for form in vendor_form %}
+                    {% for field in form %}
+                        {{ field |as_crispy_field }}
+                    {% endfor %}
+                {% endfor %}
+        </section>
+
+        <button class='btn btn-primary' type='submit'>Register</button>
+    </form>
+{% endblock content %}

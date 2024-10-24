@@ -1,0 +1,259 @@
+ Table auth_user{
+  id int [pk]
+  username varchar(32)
+  first_name varchar(32)
+  last_name varchar(32)
+  hashword varchar(64)  
+  primary_email varchar(254) [note: "used during registration: this email will recieve the notification/alerts"]
+  indexes {
+    username
+    primary_email
+  }
+  group_id int [ref: > group.id]
+  contact_id int [ref: - LUT_contacts_3.id]
+}
+
+
+Table group{
+  id int [pk, note: 'see django perm/group for more information']
+  permission_id int [ref: <> permissions.id]
+}
+
+Table permissions{
+  id int [pk, note: 'see django perm/groups for more info'] 
+}
+
+
+Table employees{
+  id int [pk]
+  employee int [ref: > LUT_contacts_3.id]
+  vendor int [ref: > vendor.id]
+}
+
+Table vendor{
+  id int [pk]
+  company_name varchar(32) [unique]
+  contact_info int [ref: - LUT_contacts_3.id]
+  uuid uuid [unique, note: 'used for linking to company?']
+
+}
+
+// Table contacts{
+//   id int [pk]
+//   contact_info jsonb [note: 'see phone number, email address and address tables']
+// }
+
+Table customer{
+  id int [pk]
+  customer_name varchar(64)
+  contact_info int [ref: - LUT_contacts_3.id]
+}
+
+// // do NOT delete
+// Table LUT_contacts{
+//   id int [pk]
+//   name varchar(64)
+// }
+// Table phone_number{
+//   id int [pk]
+//   number varchar(16)
+//   contact_id int [ref: > LUT_contacts.id]
+//   label varchar(16) [note: 'cell phone, work phone, etc']
+//   last_updated datetime [not null]
+// }
+
+// Table email_address{
+//   id int [pk]
+//   name varchar(255)
+//   type varchar(16) [note: 'business, personal, etc']
+//   contact_id int [ref: > LUT_contacts.id]
+//   last_updated datetime [not null]
+// }
+
+// Table address {
+//   id int [pk]
+//   contact_id int [ref: <> LUT_contacts.id]
+//   address varchar(128)
+//   state varchar(3)
+//   city varchar(32)
+//   zipcode varchar(12)
+//   lat float
+//   long float
+//   last_updated datetime [not null]
+//   category varchar(16) [note: 'job_site, home_address, work_address']
+// }
+
+////////////////////////////////////////////////////////////
+Table LUT_contacts_3{
+  id int [pk]
+  full_name varchar(128) [note: "Stores full_name for unregistered users."]
+}
+
+Table LUT_phone{
+  id int [pk]
+  contact_id int [ref: > LUT_contacts_3.id] 
+  address_id int [ref: > phone_number_3.id]
+}
+
+Table phone_number_3{
+  id int [pk]
+  number varchar(16)
+  cell_type varchar(16) [note: 'cell phone, work phone, etc']
+  last_updated datetime [not null]
+}
+
+Table LUT_email{
+  id int [pk]
+  contact_id int [ref: > LUT_contacts_3.id] 
+  email_id int [ref: > email_address_3.id]
+}
+
+Table email_address_3{
+  id int [pk]
+  name varchar(255)
+  email_type varchar(16) [note: 'business, personal, etc']
+  last_updated datetime [not null]
+}
+
+Table LUT_address{
+  int int [pk]
+  contact_id int [ref: > LUT_contacts_3.id]
+  address_id int [ref: > address_3.id]
+
+}
+
+Table address_3 {
+  id int [pk]
+  address varchar(128)
+  state varchar(3)
+  city varchar(32)
+  zipcode varchar(12)
+  lat float
+  long float
+  last_updated datetime [not null]
+  category varchar(1) [note: 'home, work, jobsite, other...']
+}
+
+Table job_site{
+  id int [pk]
+  address int [ref: - address_3.id]
+  name varchar(128)
+  
+}
+
+////////////////////////////////////////////////////////////
+
+// we do not want to ever delete this...
+ Table invoices{
+  id uuid [pk]
+  descript varchar(128) 
+  customer int [not null, ref: > customer.id]
+  issuer int [not null, ref: > auth_user.id]
+
+  date_created datetime [not null, note: "no updates allowed"]
+  due_date datetime [not null]
+  //time_before_alert float [note: 'has priority over user_settings']
+  status varchar(32) [not null, note: 'complete, ongoing, past due, inactive']
+  // payment_method int [ref: - payment_methods.id]
+  indexes {
+    status
+    due_date
+  }
+}
+
+ Table work_item {
+  id int [pk]
+  work_order int [ref: > work_orders.id]
+  amount float [not null]
+  memo varchar(32) [not null]
+  descript varchar(255)
+  
+ }
+
+// on delete => do nothing (applied for all fk)
+Table work_orders{
+  id int [pk]
+  title varchar(32) [not null]
+  descript varchar(255) 
+  vendor_id int [ref: > vendor.id]
+  job_site int [ref: - job_site.id]
+}
+
+Table Work_Invoice_Orders{
+  id int [pk]
+  invoice int [ref: > invoices.id]
+  work_order int [ref: > work_orders.id]
+  completion_date datetime [null]
+}
+
+Table files{
+  id int [pk]
+  file_name varchar(64)
+  source varchar(32) [note: 'location (API, web, user upload, etc)']
+  extension varchar(32)
+  last_updated datetime
+  date_created datetime [note: 'cannot update after creation']
+  file_size varchar(12) [note: 'in MB']
+  checksum varchar(255) 
+  indexes {
+    (file_name, extension) [unique]
+  }
+}
+
+Table invoice_attachments{
+  id int [pk]
+  file_id int [ref: - files.id]
+  upload_by int [ref: > auth_user.id]
+  title varchar(32)
+  descript varchar(254)
+  status varchar(12)
+  work_item_id int [ref: > work_item.id]
+  path varchar(64) [note: "do not include base dir"]
+}
+
+///////////////////////////////////////////
+Table parser_errors {
+  id int [pk]
+  file_id int [ref: <> files.id]
+  error_type varchar(16) [not null]
+  error_descript varchar(255)
+  line_number int [not null]
+  start_date datetime [not null]
+}
+
+Table system_errors {
+  id int [pk]
+  timestamp datetime 
+  execution_time float [null]
+  user_id int [ref: <> auth_user.id]
+
+  code int
+  message varchar(255)
+  stack_trace jsonb
+  action varchar(32)
+  level int [note: "critical level errors"]
+}
+
+Table endpoint_requests {
+
+  id int [pk]
+  timestamp datetime 
+  execution_time float [null]
+  user_id int [ref: <> auth_user.id]
+
+  status varchar(32)
+  message varchar(255)
+  endpoint varchar(64)
+  method varchar(12)
+  protocol varchar(12)
+}
+
+
+
+Table vendor_customers{
+  id int [pk]
+  vendor int [ref: > vendor.id]
+  customer int [ref: > customer.id]
+  date_created datetime [note: 'not editable']
+  relation varchar(1) [note: 'customer']
+}

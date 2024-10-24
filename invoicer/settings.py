@@ -24,12 +24,11 @@ SECRET_KEY = 'django-insecure-*#p*s4+x)exti(%1i8@9u#a^ngb+dx-f@+qt=+q8*@54d^*@5j
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
 LOGIN_URL = '/user/login/'
 # Application definition
-
+LOGOUT_REDIRECT_URL = '/user/success/'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,13 +39,20 @@ INSTALLED_APPS = [
     'custom_users.apps.CustomUsersConfig',
     'invoice.apps.InvoiceConfig',
     'logger.apps.LoggerConfig',
-    'django_htmx'
+    'django_htmx',
+    'crispy_forms',
+    'crispy_bootstrap5',
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -123,11 +129,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS  = [  
-    BASE_DIR / 'invoicer/static/'
+    BASE_DIR / 'invoicer/static/',
 ]
+# prod : collectstatic before running 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# for dynamic, user uploaded files during DEV only 
+MEDIA_ROOT = '/home/lroot/invoicer_files/'

@@ -1,60 +1,42 @@
 from django import forms
-from .models import Invoice, WorkOrder, WorkItem
-
-from django.contrib.auth.models import User
-from custom_users.models import Contact, Customer, Address
-#from django.forms.models import inlineformset_factory, modelformset_factory, BaseInlineFormSet
-
-
+from .models import Invoice, WorkItem
+from custom_users.models import Vendor
+from .queries import get_work_orders_by_vendor, get_customers_by_vendor
 
 class WorkItemForm(forms.ModelForm):
-    cost = forms.CharField(required='true', label='Cost', validators=[])
-    job_site = forms.ModelChoiceField(queryset=None)
-
-    def __init__(self, contact_id,  *args, **kwargs):
-        print('uwu')
-        super().__init__(*args, **kwargs)    
-        self.fields['job_site'].queryset = Address.objects.filter(
-            contact__id = contact_id,
-            category='J')
-    
+    cost = forms.FloatField(required=True, label='Amount', min_value=0, widget=forms.NumberInput(attrs={'step': '0.01'}))    
+    memo = forms.CharField(required=False)
+    descript = forms.CharField(required=False, label='Item Description', widget=forms.Textarea(attrs={'rows': '2'}))
     class Meta:
         model = WorkItem
         fields = '__all__'
 
 
 class InvoiceForm(forms.ModelForm):
-    invoice_title = forms.CharField(required=True, label='Invoice Title')
-    invoice_descript = forms.CharField(required=False, label='Summary')
-    deadline = forms.CharField(widget=forms.DateInput(attrs= {'type': 'date'}), required=False)
+    invoice_title = forms.CharField(required=True, label='Invoice Title', widget=forms.TextInput(attrs={'required': 'required'}))
+    invoice_descript = forms.CharField(required=False, label='Summary', widget=forms.Textarea(attrs={'rows': '2'}))
+    issued_at = forms.DateField(widget=forms.DateInput( attrs={'type': 'date'}))
+    deadline = forms.CharField(widget=forms.DateInput( attrs= {'type': 'date'}), required=False)
     status = forms.CharField(required=False)
-    work_order = forms.ModelChoiceField(queryset=None)
-
+    work_order = forms.ModelChoiceField(required=True, queryset=None, label="Select one Work Order", widget=forms.Select(attrs={'required': 'required'}) ) 
+    customer = forms.ModelChoiceField(required=False, queryset=None, label="Select pre-existing customer")
+    
     class Meta:
         model = Invoice
-        fields = '__all__'
+        fields = ('invoice_title', 'invoice_descript', 'issued_at', 'deadline', 'status', 'work_order', 'customer')
 
-
-    def __init__(self, contact, *args, **kwargs):
+    def __init__(self, vendor:Vendor, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['work_order'].queryset = get_work_orders_by_vendor(vendor=vendor)
+        self.fields['customer'].queryset = get_customers_by_vendor(vendor=vendor)
+        
+    def clean(self, *args, **kwargs):
+        cleaned_data = super().clean(*args, **kwargs)
+        print(cleaned_data)
+        
+        # if len(temp) == 3:
+        #     self.deadline = f"{temp[2]}-{temp[0]}-{temp[1]}"
+        # else:
+        #     raise ValidationError('Unable to convert datefield to YYYY-MM-DD format.')        
+        return cleaned_data
 
-
-        self.fields['work_order'].queryset = WorkOrder.objects.filter(
-            vendor_id = contact
-        )
-
-'''
-    Each child needs their own formset!
-    ===================================
-    Can we nest this into WorkOrder?
-
-    Parent      ->      Child
-  * Invoice     fk      WorkOrder
-    Invoice     one     Contact (customer)
-    Invoice     one     Contact (issuer)
-
-    WorkOrder   fk      WorkItem
-    WorkOrder   one     Contact (vendor) 
-
-    WorkItem    fk      Contact->Address (job site)
-'''

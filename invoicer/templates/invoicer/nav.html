@@ -7,7 +7,7 @@
                 <a tabindex='0' class='navbar-brand' hx-get='/invoice/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/invoice'>Invoices</a>
                 <a tabindex='0' class='navbar-brand' hx-get='/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/'>{{user.username}}</a>
                 {% comment "placeholder here" %}{% endcomment %}
-                <a tabindex='0' class='navbar-brand' hx-get='/user/logout/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/user/logout'>Logout</a>    
+                <a tabindex='0' class='navbar-brand' href='{% url 'logout' %}'>Logout</a>    
             {% else %}
                 <a tabindex='0' class='navbar-brand' hx-get='/user/login/' hx-target='#main' hx-swap='innerHTML' hx-push-url='/user/login/'>Sign In</a>    
             {% endif %}

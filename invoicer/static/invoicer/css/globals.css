@@ -3,3 +3,39 @@
     margin: 0;
     padding: 0;
 }
+
+:root{
+    --sm-size : 1rem;
+    --md-size : 3rem;
+    --lrg-size : 5rem;
+    --xlrg-size : 7rem;
+    --xxlrg-size : 12rem;
+}
+form-block-pb{
+    display: flex;
+    flex-direction: column;
+    max-width: min(600px, 95vw);
+    margin: var(--sm-size) auto;
+}
+.lightweight-gray{
+    background: rgba(168, 171, 202, 0.892);
+}
+
+.item-container{
+    margin-left: min(var(--lrg-size), 15%);
+    margin-right: min(var(--lrg-size), 15%)
+}
+
+.sm-pd-pb{
+    padding: var(--sm-size)
+}
+
+.sm-mg-bottom-pb{
+    margin-bottom: var(--sm-size)
+}
+
+
+.sm-mg-bottom-pb{
+    margin-bottom: var(--md-size)
+}
+

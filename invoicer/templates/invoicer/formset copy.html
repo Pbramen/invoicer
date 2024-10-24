@@ -1,9 +1,76 @@
-<form id='work_order_container' method='POST'>
+{% load crispy_forms_tags %}
+<h2> Create New Invoice </h2>
+<form id='form_container' method='POST'>
     {% csrf_token %}
-    {{ work_item_form.as_p }}
     
+    {{ work_item_form.management_form }}
+
+        <section class='card sm-pd-pb sm-mg-bottom-pb'>
+            <h3>Invoice Details</h3>
+            {{ invoice_form.invoice_title|as_crispy_field }}
+            {{ invoice_form.invoice_descript|as_crispy_field }}
+            {{ invoice_form.issued_at|as_crispy_field }}
+            {{ invoice_form.deadline|as_crispy_field }}
+            {{ invoice_form.work_order|as_crispy_field }}
+        </section>
+        <section id='customer-section' class='card sm-pd-pb sm-mg-bottom-pb'>
+            <h3>Customer Selection</h3>
+            <ul class='nav nav-tabs' id='pills-tab' role='tablist'>
+                <li class='nav_item' role='presentation'>
+                    <button class='nav-link activate' id='pills-exist' data-bs-toggle="tab" data-bs-target="#select_customer" type="button" role="tab" aria-controls="select_customer" aria-selected="true">Select Customer</button>
+                </li>
+                <li class='nav_item' role='presentation'>
+                    <button class='nav-link activate' id='pills-create' data-bs-toggle="tab" data-bs-target="#create_customer" type="button" role="tab" aria-controls="create_customer" aria-selected="false">Create Customer</button>
+                </li>
+            </ul>
+            <div id='customer-tab' class='tab-content'>
+                <input type='hidden' value="{{active_tab|escape}}" id='active_tab'/>
+                <div class='tab-pane active' role='tabpanel' aria-labelledby='pills-exist' id='select_customer'> 
+                    <span>Choose a pre-existing customer as the recipient.</span>
+                    {{ invoice_form.customer|as_crispy_field }}
+                </div>
+
+                <div class='tab-pane' role='tabpanel' aria-labelledby='pills-create' id='create_customer' >
+                    <span>Create and assign a customer to this invoice.</span>
+
+                    {% for field in customer %}
+                        {{ field|as_crispy_field }}
+                    {% endfor %}
+                    {% for field in customer_addr_form %}
+                        {{field|as_crispy_field}}
+                    {% endfor %}
+
+                    {% for field in customer_email_form %}
+                        {{field|as_crispy_field}}
+                    {% endfor %}
+
+                    {% for field in customer_phone_form %}
+                        {{field|as_crispy_field}}
+                    {% endfor %}
+                </div>
+
+            </div>
+        </section>
+
+        <section id='item_container' class='card sm-pd-pb sm-mg-bottom-pb'>
+            <div>
+                {% for form in work_item_form %}
+                    <h3 name='item_header'>Item #{{forloop.counter}}</h3>
+                    {{ form|crispy }}
+                {% endfor %}
+            </div>
+            <button id='add_item_btn' type='button' disabled>Add New Item</button> 
+        </section>
+
+    <button id='submit_btn' type='submit'>Submit</button> 
 </form>
 
+<div id='empty_work_items' style='display: none;'>
+    <div>
+    <h3 name='item_header'>Item #_</h3>
+        {{ work_item_form.empty_form|crispy }}
+    <div>
+</div>
 <!--  ########################################################################################### -->
 <div id='empty_form_order' style='display: none;'>
     
@@ -11,4 +78,122 @@
 
 <script>
     
+    $(document).ready(function() {
+
+        $('#id_invoice_order-work_order').select2({});
+        $('#id_invoice_order-customer').select2({});
+
+        var active_tab = $('#active_tab').val()
+        console.log(active_tab)
+        if (active_tab == 'select_customer'){
+            $('#create_customer').fadeOut(0, function() {
+                $('#create_customer select, input, textarea').prop('disabled', true); // Disable fields
+                $('#select_customer').fadeIn(0, function() {
+                    $('#select_customer select, input, textarea').prop('disabled', false); // Enable fields
+                });
+                $('#active_tab').val('select_customer')
+            });    
+        }
+        else {
+            $('#select_customer').fadeOut(0, function() {
+                $('#select_customer select, input, textarea').prop('disabled', true); // Disable fields
+                $('#create_customer').fadeIn(0, function() {
+                    $('#create_customer select, input, textarea').prop('disabled', false); // Enable fields
+                });
+                $('#active_tab').val('create_customer')
+            });
+        }
+        
+        function swapFieldsStatus(container, status=null){
+            const children = container.querySelectorAll('input, select, textarea')
+            children.forEach(child => {
+                if (status === null){
+                    child.disabled = !child.disabled
+                }
+                else{
+                    child.disabled = status;
+                }
+                
+            })   
+        }
+
+        $('#pills-exist').on('click', function() {
+            $('#create_customer').fadeOut(0, function() {
+                $('#create_customer select, input, textarea').prop('disabled', true); // Disable fields
+                $('#select_customer').fadeIn(0, function() {
+                    $('#select_customer select, input, textarea').prop('disabled', false); // Enable fields
+                });
+                $('#active_tab').val('select_customer')
+            });
+        });
+        
+        $('#pills-create').on('click', function() {
+            $('#select_customer').fadeOut(0, function() {
+                $('#select_customer select, input, textarea').prop('disabled', true); // Disable fields
+                $('#create_customer').fadeIn(0, function() {
+                    $('#create_customer select, input, textarea').prop('disabled', false); // Enable fields
+                });
+                $('#active_tab').val('create_customer')
+            });
+        });
+        
+
+    });
+    
+    document.addEventListener("DOMContentLoaded", (event) => {
+        var triggerTabList = [].slice.call(document.querySelectorAll('#pills-tab button'))
+        triggerTabList.forEach(function (triggerEl) {
+          var tabTrigger = new bootstrap.Tab(triggerEl)
+        
+          triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+          })
+        })
+
+        var triggerEl = document.querySelector('#pills-tab li:first-child button');
+        if (triggerEl !== null)
+            bootstrap.Tab.getInstance(triggerEl).show() // Select first tab
+    
+    
+        var select_customer = document.getElementById('pills-exist')
+        var create_customer = document.getElementById('pills-create')
+        
+        var select_container = document.getElementById('select_customer')
+        var create_container = document.getElementById('create_customer')
+
+        console.log('DOM loaded...')
+
+        
+    })
+    let add_btn = document.getElementById('add_item_btn')
+    let item_container = document.getElementById('item_container')   
+    let form = document.getElementById('form_container')
+    
+
+    let item_tracker = document.getElementById('id_item-TOTAL_FORMS')
+    
+    let regex = /__prefix__/g
+    add_btn.addEventListener('click', addItem)
+    function allowAddItem(e){
+        
+        if (e.target.value !== ''){
+            add_btn.disabled = false
+        }
+        else{
+            add_btn.disabled = true
+        }
+    }
+
+  
+    function addItem(e){
+        let item_clone = document.getElementById('empty_work_items').firstElementChild.cloneNode(true)
+        count = parseInt(item_tracker.value)
+        item_clone.querySelector('h3[name = "item_header"]').textContent = `Item #${count + 1}`
+    
+        item_clone.innerHTML = item_clone.innerHTML.replace(regex, `${count - 1}`)
+        item_tracker.value = `${count + 1}`
+        item_container.insertBefore(item_clone, add_btn)
+    }
+
 </script>
